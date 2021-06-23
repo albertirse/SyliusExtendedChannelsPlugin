@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Templating\EngineInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class ManageProductCategoriesController
 {
@@ -41,7 +42,7 @@ class ManageProductCategoriesController
 	 */
 	private $productRepository;
 
-	/** @var EngineInterface */
+	/** @var Environment */
 	private $templatingEngine;
 
 	/**
@@ -72,7 +73,7 @@ class ManageProductCategoriesController
 		FlashBagInterface $flashBag,
 		RouterInterface $router,
 		ProductRepositoryInterface $productRepository,
-		EngineInterface $templatingEngine,
+		Environment $templatingEngine,
 		EntityManagerInterface $entityManager,
 		FormFactoryInterface $formFactory,
 		EventDispatcherInterface $eventDispatcher,
@@ -110,7 +111,7 @@ class ManageProductCategoriesController
 
 			// Eg. for update products in elasticsearch
 			$event = new GenericEvent($productIds);
-			$this->eventDispatcher->dispatch('mango-sylius-extended-channels.products.after_bulk_categories', $event);
+			$this->eventDispatcher->dispatch($event, 'mango-sylius-extended-channels.products.after_bulk_categories', );
 
 			return new RedirectResponse($this->router->generate('sylius_admin_product_index'));
 		}
@@ -182,7 +183,6 @@ class ManageProductCategoriesController
 	{
 		if ($action === 'replace') {
 			$product->getProductTaxons()->clear();
-			$this->entityManager->flush();
 			$this->addTaxon($product, $dummyProduct);
 
 			return;
